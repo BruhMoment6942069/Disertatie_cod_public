@@ -1,0 +1,1447 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/models/AppState.cpp
+backend/models/AppState.h
+backend/Network/UdpClient.cpp
+backend/Network/UdpClient.h
+backend/services/AppService.cpp
+backend/services/AppService.h
+CMakeLists.txt
+controllers/MainController.cpp
+controllers/MainController.h
+frontend/Animator.cpp
+frontend/Animator.h
+frontend/graph/graphData.cpp
+frontend/graph/graphData.h
+frontend/MainWindow.cpp
+frontend/MainWindow.h
+frontend/MainWindow.py
+frontend/MainWindow.ui
+frontend/notification/NotificationPop.cpp
+frontend/notification/NotificationPop.h
+main.cpp
+resources/resources.qrc
+resources/styles.qss
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="backend/models/AppState.cpp">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#include "AppState.h"
+</file>
+
+<file path="backend/models/AppState.h">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#ifndef DISERTATIE_APPSTATE_H
+#define DISERTATIE_APPSTATE_H
+
+#endif //DISERTATIE_APPSTATE_H
+</file>
+
+<file path="backend/Network/UdpClient.cpp">
+//
+// Created by Andrei on 20.02.2026.
+//
+
+#include "UdpClient.h"
+#include <QThread>
+#include <qcolor.h>
+#include <QDebug>
+
+UdpClient::UdpClient(QObject *parent)
+    : QObject(parent) {
+    auto udpPort = 1234;
+    _socket.bind(QHostAddress::AnyIPv4, udpPort);
+    connect(&_socket, &QUdpSocket::readyRead, this, &UdpClient::ready_Read);
+    _udpPort = udpPort;
+    qDebug() << "UdpClient thread:" << QThread::currentThread();
+}
+
+void UdpClient::send_Message(const QString &message) {
+    QByteArray data;
+    data.append(message.toUtf8());
+    QHostAddress esp("192.168.1.104");
+    _socket.writeDatagram(data, esp, _udpPort);
+    qDebug() << "Sent on Port: " << _udpPort;
+    //UdpClient::ready_Read();
+}
+
+void UdpClient::ready_Read() {
+    qDebug() << "Emitting from thread:" << QThread::currentThread();
+    while (_socket.hasPendingDatagrams()) {
+        QByteArray buffer;
+        buffer.resize(_socket.pendingDatagramSize());
+
+        QHostAddress sender;
+        quint16 senderPort;
+        _socket.readDatagram(buffer.data(), buffer.size(), &sender, &senderPort);
+        qDebug() << " Message from: " << sender.toString();
+        qDebug() << " Message port: " << senderPort;
+        qDebug() << " Message: " << buffer;
+        QString message = QString::fromUtf8(buffer);
+        qDebug() << "emiting dataReceived: " << message;
+        emit dataReceived(message);
+        qDebug() << "done emiting";
+
+    }
+}
+</file>
+
+<file path="backend/Network/UdpClient.h">
+//
+// Created by Andrei on 20.02.2026.
+//
+#ifndef DISERTATIE_UDPCLIENT_H
+#define DISERTATIE_UDPCLIENT_H
+
+
+
+#include <QObject>
+#include <QUdpSocket>
+#include <QHostAddress>
+
+class UdpClient : public QObject {
+    Q_OBJECT
+
+public:
+    explicit UdpClient(QObject* parent = nullptr);
+    void send_Message(const QString& message);
+
+signals:
+    void dataReceived(const QString &message);
+
+
+private slots:
+    void ready_Read();
+
+private:
+    QUdpSocket _socket;
+    int _udpPort;
+
+};
+#endif //DISERTATIE_UDPCLIENT_H
+</file>
+
+<file path="backend/services/AppService.cpp">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#include "AppService.h"
+#include <iostream>
+#include <QDebug>
+#include "../Network/UdpClient.h"
+
+
+void AppService::doSomething() {
+    qDebug() << "[Backend] Doing the thing!\n";
+}
+void AppService::startProcess() {
+    qDebug() << "[Backend] Process started\n";
+
+}
+
+void AppService::resetProcess() {
+    qDebug() << "[Backend] Process reset\n";
+}
+
+void AppService::printStatus() {
+    qDebug() << "[Backend] Status: everything is fine\n";
+}
+void AppService::connectionStarted() {
+    qDebug() << "[Backend] Attempting to connect to esp32\n";
+}
+
+void AppService::handleData(const QString &data) {
+    _buffer.append(data.toUtf8());
+    while (_buffer.contains("[START]") && _buffer.contains("[END]")) {
+        int startPos = _buffer.indexOf(startFlag);
+        int endPos = _buffer.indexOf(stopFlag);
+
+        if (endPos > startPos) {
+
+            int dataStart = startPos + startFlag.length();
+            int dataLength = endPos - dataStart;
+
+            QString rawData = _buffer.mid(dataStart, dataLength);
+
+            qDebug() << "rawData : " << _buffer;
+            processCSVData(rawData);
+        }
+
+            _buffer.clear();
+    }
+
+    // if (_buffer.startsWith("<START>") && _buffer.endsWith("<END>")) {
+    //     if () {
+    //
+    //     }
+    // }
+
+/*if (startPos != -1 && endPos != -1 && endPos > startPos) {
+        int dataStart = _buffer.indexOf(startFlag, startPos + 1);
+
+        int dataLength = _buffer.indexOf(stopFlag, dataStart + 1);
+        rawData = _buffer.mid(dataStart, dataLength);
+        qDebug() << "Data check" << rawData;
+    }*/
+
+}
+
+void AppService::processCSVData(const QString &data) {
+    QStringList fields = data.split(",");
+    if (fields.size() >= 5) {
+        QString ID = fields.at(0);
+        QString x1 = fields.at(1);
+        QString x2 = fields.at(2);
+        QString y1 = fields.at(3);
+        QString y2 = fields.at(4);
+
+        emit dataParsed(fields);
+
+    }
+}
+</file>
+
+<file path="backend/services/AppService.h">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#ifndef DISERTATIE_APPSERVICE_H
+#define DISERTATIE_APPSERVICE_H
+#pragma once
+#include <QObject>
+#include <QString>
+
+class AppService : public QObject {
+    Q_OBJECT
+public:
+    void doSomething();
+    void startProcess();
+    void resetProcess();
+    void printStatus();
+    void connectionStarted();
+    void handleData(const QString& data);
+    void processCSVData(const QString& data);
+
+    signals:
+    void dataParsed(const QStringList& fields);
+
+private:
+    QString _buffer;
+    QString startFlag = "[START]";
+    QString stopFlag = "[END]";
+    QString rawData;
+};
+
+#endif //DISERTATIE_APPSERVICE_H
+</file>
+
+<file path="CMakeLists.txt">
+cmake_minimum_required(VERSION 4.0)
+project(Disertatie)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Network)
+find_package(Qt6 REQUIRED COMPONENTS OpenGLWidgets)
+find_package(Qt6 REQUIRED COMPONENTS Charts)
+
+qt_standard_project_setup()
+
+
+add_executable(Disertatie main.cpp
+        controllers/MainController.h
+        controllers/MainController.cpp
+        frontend/MainWindow.cpp
+        frontend/MainWindow.h
+        frontend/MainWindow.ui
+        controllers/MainController.cpp
+        controllers/MainController.h
+        backend/models/AppState.cpp
+        backend/models/AppState.h
+        backend/services/AppService.cpp
+        backend/services/AppService.h
+        resources/resources.qrc
+        resources/styles.qss
+        frontend/Animator.cpp
+        frontend/Animator.h
+        backend/Network/UdpClient.cpp
+        backend/Network/UdpClient.h
+        frontend/notification/NotificationPop.cpp
+        frontend/notification/NotificationPop.h
+        frontend/graph/graphData.cpp
+        frontend/graph/graphData.h
+)
+target_include_directories(Disertatie PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend)
+
+target_link_libraries(Disertatie PRIVATE Qt6::Widgets)
+target_link_libraries(Disertatie PRIVATE Qt6::Network)
+target_link_libraries(Disertatie PRIVATE Qt6::OpenGLWidgets)
+target_link_libraries(Disertatie PRIVATE Qt6::Charts)
+</file>
+
+<file path="controllers/MainController.cpp">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#include "MainController.h"
+#include <QPushButton>
+#include "../backend/services/AppService.h"
+#include "../frontend/MainWindow.h"
+#include <QDebug>
+#include  <QThread>
+
+//Constructor of MainController -> class from maincontroller header
+// it receives a pointer to main window (basically shows stuff on the screen)
+// if it wasn't a pointer it would make a copy and the controller would talk to the copy instead of the actual object
+// window() is a member variable
+// window(<<window>>) is the constructor parameter
+// witthout this you can't connect the signals and talk to the UI
+// service(new AppService()) this creates the backend that's taken care by the controller and the ui has no idea of the backend
+// initializer list is faster than {} and is required for refeneces/const
+MainController::MainController(MainWindow *window)
+    : window(window), service(new AppService()), _udpClient(new UdpClient()), _notificationPop(new NotificationPop())
+{
+    /*
+     * When window emits actionButtonClicked, call this controller's onActionButton
+     * window sends the signal &MainWindow::actionButtonClicked
+     * this ( the controller) this refers to the current instance is the receiver
+     * and the function to call AKA slot is &MainController::onActionButton
+     * &MainWindow::actionButtonClicked this is a pointer to the member function
+     */
+    connect(window, &MainWindow::actionButtonClicked, this, &MainController::onActionButton);
+    connect(window, &MainWindow::startRequested, this, &MainController::handleStart);
+    connect(window,  &MainWindow::resetRequested, this, &MainController::handleReset);
+    connect(window, &MainWindow::statusRequested, this, &MainController::handleStatus);
+    connect(window, &MainWindow::connectionRequested, this, &MainController::handleConnection);
+    connect(_notificationPop, &NotificationPop::getMessage, this, &MainController::handleNotification);
+    connect(_udpClient, &UdpClient::dataReceived, this, &MainController::handleNotification);
+    auto c1 = connect(_udpClient, &UdpClient::dataReceived, this, &MainController::handleDataReceived);
+    qDebug() << "c1:" << c1;
+    connect(service, &AppService::dataParsed, this, &MainController::receivedParsed);
+    qDebug() << "MainController thread:" << QThread::currentThread();
+
+
+}
+
+void MainController::onActionButton() {
+    qDebug() << "[Controller] Button clicked\n";
+    service->doSomething();
+}
+void MainController::handleStart() {
+    qDebug() << "[Controller] Start requested\n";
+    service->startProcess();
+}
+void MainController::handleReset() {
+    qDebug() << "[Controller] Reset requested\n";
+    service->resetProcess();
+}
+
+void MainController::handleStatus() {
+    qDebug() << "[Controller] Status requested";
+    service->printStatus();
+}
+
+void MainController::handleConnection() {
+    _isAlreadyConnected = false;
+    service->connectionStarted();
+    _udpClient->send_Message("Connected");
+
+}
+
+void MainController::handleDataReceived(const QString &data) {
+    service->handleData(data);
+    qDebug() << "handleDataReceived " << data;
+
+}
+
+void MainController::receivedParsed(const QStringList &fields) {
+    QString packetID = fields.at(0);
+    QString x1 = fields.at(1);
+    QString x2 = fields.at(2);
+    QString y1 = fields.at(3);
+    QString y2 = fields.at(4);
+    window->updateCoordinates(packetID, x1, x2, y1, y2 );
+}
+
+///TODO this doesn't function without upd talking which is stupid
+void MainController::handleNotification(const QString& message) {
+    qDebug() << "handleNotification called with:" << message;  // add this
+    if (_isAlreadyConnected == true) {
+        return;
+    }
+    QString cleanMessage = message.trimmed();
+    qDebug() << "Raw message bytes:" << message.toUtf8().toHex();
+    qDebug() << "Clean message:" << cleanMessage;
+    if (cleanMessage.compare("Connected", Qt::CaseInsensitive)== 0) {
+        qDebug() << "window is:" << window;
+        window->showNotification(message);
+        _isAlreadyConnected = true;
+    } else {
+        window->showNotification("Not Connected");
+    }
+    qDebug() << "sunt aici";
+
+    //service->handleData("mor aici");
+}
+</file>
+
+<file path="controllers/MainController.h">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#ifndef DISERTATIE_MAINCONTROLLER_H
+#define DISERTATIE_MAINCONTROLLER_H
+#pragma once
+#include <QObject>
+#include "../frontend/notification/NotificationPop.h"
+#include "../backend/Network/UdpClient.h"
+
+class MainWindow;
+class AppService;
+
+class MainController : public QObject {
+    Q_OBJECT
+
+public:
+    explicit MainController(MainWindow* window);
+
+public slots:
+    void handleNotification(const QString& message);
+
+private slots:
+    void onActionButton();
+
+    void handleStart();
+
+    void handleReset();
+
+    void handleStatus();
+
+    void handleConnection();
+
+    void handleDataReceived(const QString& message);
+
+    void receivedParsed(const QStringList& fields);
+
+private:
+    void processBuffer();
+
+    //void handleNotification();
+
+private:
+    MainWindow* window;
+    AppService* service;
+    UdpClient* _udpClient;
+    NotificationPop* _notificationPop;
+    QByteArray _buffer;
+    bool _isAlreadyConnected = false;
+
+};
+
+
+#endif //DISERTATIE_MAINCONTROLLER_H
+</file>
+
+<file path="frontend/Animator.cpp">
+//
+// Created by Andrei on 09.02.2026.
+//
+
+#include "Animator.h"
+#include <QTimer>
+#include <QPropertyAnimation>
+#include <QSequentialAnimationGroup>
+
+void Animator::fadeInOut(QWidget *widget,
+    QGraphicsOpacityEffect *effect,
+    const int displayMs,
+    const int fadeMs) {
+    effect->setOpacity(0.0);
+    widget->show();
+
+    auto* fadeIn = new QPropertyAnimation(effect, "opacity");
+    fadeIn->setDuration(fadeMs);
+    fadeIn->setStartValue(0.0);
+    fadeIn->setEndValue(1.0);
+
+    auto* fadeOut = new QPropertyAnimation(effect, "opacity");
+    fadeOut->setDuration(fadeMs);
+    fadeOut->setStartValue(1.0);
+    fadeOut->setEndValue(0.0);
+
+    auto* group = new QSequentialAnimationGroup(widget);
+    group->addAnimation(fadeIn);
+    group->addPause(displayMs);
+    group->addAnimation(fadeOut);
+
+    QObject::connect(group, &QSequentialAnimationGroup::finished, [widget]() {widget->hide();});
+
+    group->start(QAbstractAnimation::DeleteWhenStopped);
+
+
+}
+</file>
+
+<file path="frontend/Animator.h">
+//
+// Created by Andrei on 09.02.2026.
+//
+
+#ifndef DISERTATIE_ANIMATOR_H
+#define DISERTATIE_ANIMATOR_H
+#pragma once
+#include <QWidget>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
+#include <QSequentialAnimationGroup>
+
+
+class Animator {
+public:
+    //Fade in/out a widget with a message
+    static void fadeInOut(QWidget* widget,
+        QGraphicsOpacityEffect* effect,
+        int displayMs = 3000,
+        int fadeMs = 300
+        );
+};
+
+
+#endif //DISERTATIE_ANIMATOR_H
+</file>
+
+<file path="frontend/graph/graphData.cpp">
+//
+// Created by Andrei on 23.03.2026.
+//
+
+#include "graphData.h"
+
+#include <QDebug>
+#include <QTimer>
+
+graphData::graphData(QWidget *parent) : QChartView(parent) {
+    QList<QColor> colors = {QColor(0,120,215), QColor(220, 50, 50), QColor(50, 180, 50), QColor(180, 50,220)};
+    QStringList names = {"Ch 1","Ch 2","Ch 3", "Ch 4"};
+    chart = new QChart();
+    chart->setTitle("Smooth Spline Visualization");
+    chart->legend()->hide();
+    chart->setAnimationOptions(QChart::NoAnimation);
+
+    for (int i = 0; i < 4; i++) {
+        series[i] = new QLineSeries(this);
+        series[i]->setName(names[i]);
+        QPen pen(colors[i]);
+        pen.setWidth(2);
+        series[i]->setPen(pen);
+        chart->addSeries(series[i]);
+
+    }
+
+
+    // AXES
+    m_axisX = new QValueAxis();
+    m_axisX->setRange(0, 100 * 0.05 );
+    m_axisX->setTitleText("Time (s)");
+    m_axisX->setTickCount(11);
+    chart->addAxis(m_axisX, Qt::AlignBottom);
+
+    m_axisY = new QValueAxis();
+    m_axisY->setRange(0, 360);
+    m_axisY->setTitleText("Grade");
+    chart->addAxis(m_axisY, Qt::AlignLeft);
+
+    for (int i = 0; i < 4; i++) {
+
+        series[i]->attachAxis(m_axisX);
+        series[i]->attachAxis(m_axisY);
+    }
+    //Chart View
+    this->setChart(chart);
+    this->setRenderHint(QPainter::Antialiasing);
+
+    m_renderTimer = new QTimer(this);
+    connect(m_renderTimer, &QTimer::timeout, this, &graphData::updateGraph);
+    m_renderTimer->start(static_cast<int>(0.05 * 1000));
+    /*
+    datetime = new QDateTimeAxis();
+    datetime->setTickCount(10);
+    datetime->setFormat("hh:mm:ss");
+
+
+    axisY->setRange(0,360);
+    axisY->setLabelFormat("pizda");
+
+
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+    chart->addAxis(datetime, Qt::AlignBottom);
+    chart->addAxis(axisY, Qt::AlignLeft);
+
+    series->attachAxis(datetime);
+    series->attachAxis(axisY);*/
+
+}
+
+void graphData::pushDataToBuffer(double x1, double y1, double x2, double y2) {
+
+    QMutexLocker locker(&m_mutex);
+
+    m_buffer[0].append(QPointF(m_time, x1));
+    m_buffer[1].append(QPointF(m_time, y1));
+    m_buffer[2].append(QPointF(m_time, x2));
+    m_buffer[3].append(QPointF(m_time, y2));
+
+    m_time += 0.05;
+    //qDebug() << m_buffer << "buffer";
+}
+
+void graphData::clearData() {
+    QMutexLocker locker(&m_mutex);
+    for (int i = 0; i < 4; i++) {
+        m_buffer[i].clear();
+        series[i]->clear();
+    }
+    m_time = 0.0;
+}
+
+void graphData::updateGraph() {
+    for (int i = 0; i < 4; i++) {
+
+        QList<QPointF> dataToDraw;
+        QMutexLocker locker(&m_mutex);
+        dataToDraw = m_buffer[i];
+        m_buffer[i].clear();
+        series[i]->append(dataToDraw);
+        while (series[i]->count() > 100) {
+            series[i]->remove(0);
+        }
+    }
+    double xMax = m_time;
+    double xMin = xMax - 100 * 0.05;
+    m_axisX->setRange(xMin, xMax);
+
+}
+</file>
+
+<file path="frontend/graph/graphData.h">
+//
+// Created by Andrei on 23.03.2026.
+//
+
+#ifndef DISERTATIE_GRAPHDATA_H
+#define DISERTATIE_GRAPHDATA_H
+
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QChart>
+#include <QtCharts/QLegend>
+#include <QMutex>
+#include <QTimer>
+#include <QList>
+#include <QPointF>
+#include <QDateTime>
+#include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QValueAxis>
+
+class graphData : public QChartView {
+    Q_OBJECT
+
+public:
+    explicit graphData(QWidget *parent = nullptr);
+
+    void pushDataToBuffer(double x1, double y1, double x2, double y2);
+    void clearData();
+
+private slots:
+    void updateGraph();
+
+private:
+    QLineSeries* series[4];
+    QDateTimeAxis* datetime;
+    QChart* chart;
+    QValueAxis* m_axisX;
+    QValueAxis* m_axisY;
+    QList<QPointF> m_buffer[4];
+    QMutex m_mutex;
+    QTimer* m_renderTimer;
+
+    double m_time = 0.0 ;
+};
+
+
+#endif //DISERTATIE_GRAPHDATA_H
+</file>
+
+<file path="frontend/MainWindow.cpp">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#include "MainWindow.h"
+#include "ui_MainWindow.h"
+#include <QPushButton>
+#include <QDebug>
+#include <QStatusBar>
+#include <QTimer>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
+#include "notification/NotificationPop.h"
+#include "Animator.h"
+#include <QDialog>
+#include <QMessageBox>
+#include "graph/graphData.h"
+
+
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent),
+      ui(new Ui::MainWindow)
+{
+    //UI!!!!!!
+    ui->setupUi(this);
+
+    floatingNotify = new NotificationPop(ui->centralwidget);
+    floatingNotify->setWindowFlags(Qt::Widget |Qt::FramelessWindowHint);
+
+    notifyEffect = new QGraphicsOpacityEffect(floatingNotify);
+    floatingNotify->setGraphicsEffect(notifyEffect);
+    floatingNotify->setAttribute(Qt::WA_TranslucentBackground);
+    floatingNotify->hide();
+    ui->graphDataWidget->hide();
+    //ui->graphDataWidget->addDataPoint(1.0, 10.5);
+    //ui->graphDataWidget->addDataPoint(5.0, 6.3);
+    //ui->opQlWCoords->hide();
+    //renderTimer = new QTimer(this);
+
+
+    //connect(ui->pushButtonConnect, &QPushButton::clicked, this, &MainWindow::actionButtonClicked);
+    //connect(ui->startButton, &QPushButton::clicked, this, &MainWindow::startRequested);
+    //connect(ui->resetButton, &QPushButton::clicked, this, &MainWindow::resetRequested);
+    //connect(ui->printButton, &QPushButton::clicked, this, &MainWindow::statusRequested);
+    //connect(renderTimer, &QTimer::timeout, this, [this]() {
+    //ui->opQlWCoords->update();
+//});
+    connect(ui->actionStart_Connection, &QAction::triggered, this, &MainWindow::connectionRequested);
+    connect(ui->actionStart_Window, &QAction::triggered, this, &MainWindow::handleOpenWindowView);
+
+    //renderTimer->start(16);
+}
+
+MainWindow::~MainWindow() {
+    delete ui;
+}
+void MainWindow::showStatusMessage(const QString& message, int timeoutMs) {
+
+}
+
+void MainWindow::showNotification(const QString& message, int timeoutMs) {
+    floatingNotify->setMessage(message);
+    timeoutMs = 300;
+    notifyEffect->setEnabled(true);
+
+    int x = (ui->centralwidget->width() - floatingNotify->width()) / 2;
+    int y = (ui->centralwidget->height() - floatingNotify->height()) - 20;
+
+    floatingNotify->move(x,y);
+    floatingNotify->show();
+    floatingNotify->raise();
+
+    Animator::fadeInOut(floatingNotify, notifyEffect, timeoutMs);
+
+}
+
+void MainWindow::updateCoordinates(const QString &ID, const QString &x1, const QString &x2, const QString &y1,
+    const QString &y2) {
+    int ok = 1;
+    if (ID == "1") {
+        ui->lblM1X1->setText(x1);
+        ui->lblM1Y1->setText(y1);
+        ui->lblM2X2->setText(x2);
+        ui->lblM2Y2->setText(y2);
+        if (_opGraphData == true ) {
+            ui->graphDataWidget->pushDataToBuffer(x1.toDouble(),y1.toDouble(), x2.toDouble(), y2.toDouble());
+
+        }
+    }
+}
+
+void MainWindow::handleOpenWindowView(){
+    qDebug() << "OpenGL Window was opened";
+    if (_opGraphData == false) {
+        _opGraphData = true;
+        ui->graphDataWidget->show();
+        ui->graphDataWidget->update();
+    } else if (_opGraphData == true) {
+        _opGraphData = false;
+        ui->graphDataWidget->clearData();
+        ui->graphDataWidget->hide();
+    }
+}
+</file>
+
+<file path="frontend/MainWindow.h">
+//
+// Created by Andrei on 2/4/2026.
+//
+
+#ifndef DISERTATIE_MAINWINDOW_H
+#define DISERTATIE_MAINWINDOW_H
+#pragma once
+#include <QMainWindow>
+#include <QGraphicsOpacityEffect>
+#include "../backend/Network/UdpClient.h"
+#include <QStatusBar>
+//#include "OpenGLwindow/openGLWindow.h"
+#include "notification/NotificationPop.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+
+class MainWindow : public QMainWindow {
+    Q_OBJECT
+public:
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+    void showStatusMessage(const QString& message, int timeoutMs = 2000);
+    void showNotification(const QString& message, int timeout = 2000);
+    void updateCoordinates(const QString& ID, const QString& x1, const QString& x2, const QString& y1, const QString& y2);
+    signals:
+    void actionButtonClicked();
+    void startRequested();
+    void resetRequested();
+    void statusRequested();
+    void connectionRequested();
+
+
+private slots:
+    void handleOpenWindowView();
+
+private:
+    Ui::MainWindow *ui;
+    QGraphicsOpacityEffect* notifyEffect;
+    NotificationPop* floatingNotify;
+    UdpClient* udpClient;
+    QTimer* renderTimer;
+    bool _opGraphData = false;
+
+};
+
+
+
+#endif //DISERTATIE_MAINWINDOW_H
+</file>
+
+<file path="frontend/MainWindow.py">
+/********************************************************************************
+** Form generated from reading UI file 'MainWindow.ui'
+**
+** Created by: Qt User Interface Compiler version 6.10.2
+**
+** WARNING! All changes made in this file will be lost when recompiling UI file!
+********************************************************************************/
+
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QtCore/QVariant>
+#include <QtGui/QAction>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QGroupBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QStatusBar>
+#include <QtWidgets/QWidget>
+#include "graph/graphData.h"
+
+QT_BEGIN_NAMESPACE
+
+class Ui_MainWindow
+{
+public:
+    QAction *actionEsp32;
+    QAction *actionStart_Connection;
+    QAction *actionStart_Window;
+    QWidget *centralwidget;
+    QGridLayout *gridLayout;
+    QFrame *frame;
+    QGridLayout *gridLayout_3;
+    graphData *graphDataWidget;
+    QGroupBox *grpBCOORDS;
+    QGridLayout *gridLayout_2;
+    QLabel *lblM1Y1;
+    QLabel *lblM2Y2;
+    QLabel *label_5;
+    QLabel *lblM1X1;
+    QLabel *lblM2X2;
+    QLabel *label_6;
+    QLabel *label;
+    QLabel *label_4;
+    QLabel *label_2;
+    QLabel *label_3;
+    QSpacerItem *verticalSpacer;
+    QMenuBar *menubar;
+    QMenu *menuConnect;
+    QMenu *btn_CoordView;
+    QStatusBar *statusbar;
+
+    void setupUi(QMainWindow *MainWindow)
+    {
+        if (MainWindow->objectName().isEmpty())
+            MainWindow->setObjectName("MainWindow");
+        MainWindow->setEnabled(true);
+        MainWindow->resize(718, 697);
+        actionEsp32 = new QAction(MainWindow);
+        actionEsp32->setObjectName("actionEsp32");
+        actionStart_Connection = new QAction(MainWindow);
+        actionStart_Connection->setObjectName("actionStart_Connection");
+        actionStart_Connection->setCheckable(false);
+        actionStart_Window = new QAction(MainWindow);
+        actionStart_Window->setObjectName("actionStart_Window");
+        centralwidget = new QWidget(MainWindow);
+        centralwidget->setObjectName("centralwidget");
+        gridLayout = new QGridLayout(centralwidget);
+        gridLayout->setObjectName("gridLayout");
+        frame = new QFrame(centralwidget);
+        frame->setObjectName("frame");
+        frame->setEnabled(true);
+        frame->setFrameShape(QFrame::Shape::StyledPanel);
+        frame->setFrameShadow(QFrame::Shadow::Raised);
+        gridLayout_3 = new QGridLayout(frame);
+        gridLayout_3->setObjectName("gridLayout_3");
+        graphDataWidget = new graphData(frame);
+        graphDataWidget->setObjectName("graphDataWidget");
+        graphDataWidget->setMinimumSize(QSize(40, 40));
+
+        gridLayout_3->addWidget(graphDataWidget, 0, 1, 1, 1);
+
+        grpBCOORDS = new QGroupBox(frame);
+        grpBCOORDS->setObjectName("grpBCOORDS");
+        grpBCOORDS->setMaximumSize(QSize(150, 100));
+        gridLayout_2 = new QGridLayout(grpBCOORDS);
+        gridLayout_2->setObjectName("gridLayout_2");
+        lblM1Y1 = new QLabel(grpBCOORDS);
+        lblM1Y1->setObjectName("lblM1Y1");
+
+        gridLayout_2->addWidget(lblM1Y1, 1, 2, 1, 1);
+
+        lblM2Y2 = new QLabel(grpBCOORDS);
+        lblM2Y2->setObjectName("lblM2Y2");
+
+        gridLayout_2->addWidget(lblM2Y2, 3, 2, 1, 1);
+
+        label_5 = new QLabel(grpBCOORDS);
+        label_5->setObjectName("label_5");
+
+        gridLayout_2->addWidget(label_5, 2, 1, 1, 1);
+
+        lblM1X1 = new QLabel(grpBCOORDS);
+        lblM1X1->setObjectName("lblM1X1");
+
+        gridLayout_2->addWidget(lblM1X1, 0, 2, 1, 1);
+
+        lblM2X2 = new QLabel(grpBCOORDS);
+        lblM2X2->setObjectName("lblM2X2");
+
+        gridLayout_2->addWidget(lblM2X2, 2, 2, 1, 1);
+
+        label_6 = new QLabel(grpBCOORDS);
+        label_6->setObjectName("label_6");
+
+        gridLayout_2->addWidget(label_6, 3, 1, 1, 1);
+
+        label = new QLabel(grpBCOORDS);
+        label->setObjectName("label");
+
+        gridLayout_2->addWidget(label, 0, 0, 1, 1);
+
+        label_4 = new QLabel(grpBCOORDS);
+        label_4->setObjectName("label_4");
+
+        gridLayout_2->addWidget(label_4, 2, 0, 1, 1);
+
+        label_2 = new QLabel(grpBCOORDS);
+        label_2->setObjectName("label_2");
+
+        gridLayout_2->addWidget(label_2, 1, 1, 1, 1);
+
+        label_3 = new QLabel(grpBCOORDS);
+        label_3->setObjectName("label_3");
+
+        gridLayout_2->addWidget(label_3, 0, 1, 1, 1);
+
+
+        gridLayout_3->addWidget(grpBCOORDS, 0, 0, 1, 1);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        gridLayout_3->addItem(verticalSpacer, 1, 0, 1, 1);
+
+
+        gridLayout->addWidget(frame, 0, 0, 1, 1);
+
+        MainWindow->setCentralWidget(centralwidget);
+        menubar = new QMenuBar(MainWindow);
+        menubar->setObjectName("menubar");
+        menubar->setGeometry(QRect(0, 0, 718, 33));
+        menuConnect = new QMenu(menubar);
+        menuConnect->setObjectName("menuConnect");
+        btn_CoordView = new QMenu(menubar);
+        btn_CoordView->setObjectName("btn_CoordView");
+        MainWindow->setMenuBar(menubar);
+        statusbar = new QStatusBar(MainWindow);
+        statusbar->setObjectName("statusbar");
+        MainWindow->setStatusBar(statusbar);
+
+        menubar->addAction(menuConnect->menuAction());
+        menubar->addAction(btn_CoordView->menuAction());
+        menuConnect->addSeparator();
+        menuConnect->addSeparator();
+        menuConnect->addAction(actionStart_Connection);
+        btn_CoordView->addAction(actionStart_Window);
+
+        retranslateUi(MainWindow);
+
+        QMetaObject::connectSlotsByName(MainWindow);
+    } // setupUi
+
+    void retranslateUi(QMainWindow *MainWindow)
+    {
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
+        actionEsp32->setText(QCoreApplication::translate("MainWindow", "Esp32", nullptr));
+        actionStart_Connection->setText(QCoreApplication::translate("MainWindow", "Start Connection", nullptr));
+        actionStart_Window->setText(QCoreApplication::translate("MainWindow", "Start Window", nullptr));
+        grpBCOORDS->setTitle(QCoreApplication::translate("MainWindow", "Coordinates", nullptr));
+        lblM1Y1->setText(QString());
+        lblM2Y2->setText(QString());
+        label_5->setText(QCoreApplication::translate("MainWindow", "X1:", nullptr));
+        lblM1X1->setText(QString());
+        lblM2X2->setText(QString());
+        label_6->setText(QCoreApplication::translate("MainWindow", "Y2:", nullptr));
+        label->setText(QCoreApplication::translate("MainWindow", "Motor 1", nullptr));
+        label_4->setText(QCoreApplication::translate("MainWindow", "Motor 2", nullptr));
+        label_2->setText(QCoreApplication::translate("MainWindow", "Y2:", nullptr));
+        label_3->setText(QCoreApplication::translate("MainWindow", "X1:", nullptr));
+        menuConnect->setTitle(QCoreApplication::translate("MainWindow", "Connect", nullptr));
+        btn_CoordView->setTitle(QCoreApplication::translate("MainWindow", "CoordinatesView", nullptr));
+    } // retranslateUi
+
+};
+
+namespace Ui {
+    class MainWindow: public Ui_MainWindow {};
+} // namespace Ui
+
+QT_END_NAMESPACE
+
+#endif // MAINWINDOW_H
+</file>
+
+<file path="frontend/MainWindow.ui">
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>718</width>
+    <height>697</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QFrame" name="frame">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Shadow::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <widget class="graphData" name="graphDataWidget" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="grpBCOORDS">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Coordinates</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="2">
+           <widget class="QLabel" name="lblM1Y1">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="lblM2Y2">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>X1:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="lblM1X1">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="lblM2X2">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Y2:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Motor 1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Motor 2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Y2:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>X1:</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>718</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuConnect">
+    <property name="title">
+     <string>Connect</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionStart_Connection"/>
+   </widget>
+   <widget class="QMenu" name="btn_CoordView">
+    <property name="title">
+     <string>CoordinatesView</string>
+    </property>
+    <addaction name="actionStart_Window"/>
+   </widget>
+   <addaction name="menuConnect"/>
+   <addaction name="btn_CoordView"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionEsp32">
+   <property name="text">
+    <string>Esp32</string>
+   </property>
+  </action>
+  <action name="actionStart_Connection">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Start Connection</string>
+   </property>
+  </action>
+  <action name="actionStart_Window">
+   <property name="text">
+    <string>Start Window</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>graphData</class>
+   <extends>QWidget</extends>
+   <header>graph/graphData.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
+</file>
+
+<file path="frontend/notification/NotificationPop.cpp">
+//
+// Created by Andrei on 02.03.2026.
+//
+
+#include "NotificationPop.h"
+#include <QWidget>
+
+NotificationPop::NotificationPop(QWidget *parent) : QWidget(parent) {
+    setWindowFlags(Qt::Widget | Qt::FramelessWindowHint );
+    // 1. Setup UI elements
+    notificationLabel = new QLabel(this);
+    notificationLabel->setObjectName("notificationLabel");
+    //notificationLabel->setAlignment(Qt::AlignCenter);
+    //notificationLabel->setContentsMargins(0, 0, 0, 0);
+    //notificationLabel->setStyleSheet("QLabel{background:black;}");
+
+}
+void NotificationPop::setMessage(const QString& message) {
+    notificationLabel->setText(message);
+}
+</file>
+
+<file path="frontend/notification/NotificationPop.h">
+//
+// Created by Andrei on 02.03.2026.
+//
+
+
+#ifndef DISERTATIE_NOTIFICATIONPOP_H
+#define DISERTATIE_NOTIFICATIONPOP_H
+#include <QWidget>
+#include <QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
+class NotificationPop : public QWidget {
+    Q_OBJECT
+
+public:
+    explicit NotificationPop(QWidget* parent = nullptr);
+    void setMessage(const QString& message);
+
+//private slots:
+signals:
+    void getMessage(const QString& message);
+private:
+    QLabel* notificationLabel;
+
+};
+#endif //DISERTATIE_NOTIFICATIONPOP_H
+</file>
+
+<file path="main.cpp">
+#include <complex>
+#include <QApplication>
+#include "frontend/MainWindow.h"
+#include "controllers/MainController.h"
+#include <QFile>
+#include <QString>
+
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    QFile file(":/styles.qss");
+    if (file.open(QFile::ReadOnly)) {
+        QString styleSheet = QLatin1String(file.readAll());
+        app.setStyleSheet(styleSheet);
+    } else {
+        qWarning() << "Unable to load style.qss";
+    }
+
+    MainWindow window;
+    MainController controller(&window);
+
+
+    window.show();
+
+    return app.exec();
+}
+</file>
+
+<file path="resources/resources.qrc">
+<RCC>
+    <qresource prefix="/">
+        <file>styles.qss</file>
+    </qresource>
+</RCC>
+</file>
+
+<file path="resources/styles.qss">
+/* -----------Color Pallete ------------- */
+/*
+Deep Background	#0B0E14	The main window background (Deep space blue).
+Surface/Card	#151B26	Sidebars, cards, and container elements.
+Primary Accent	#3B82F6	Primary buttons, active states, and focus borders.
+Secondary Blue	#1E3A8A	Hover states and subtle highlights.
+Text (Primary)	#F8FAFC	Main headings and body text (Off-white blue).
+Text (Muted)	#94A3B8	Labels, placeholders, and disabled text.
+Glow/Success	#60A5FA	Neon highlights or success indicators.
+
+
+*/
+/**/
+
+
+QMainWindow{
+    background-color: #0B0E14;
+}
+QPushButton {
+    background-color: #3B82F6;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 12px;
+    font-weight: bold;
+}
+
+QPushButton:hover{
+    background-color: #151B26;
+}
+
+QLabel#notificationLabel{
+    color: white;
+    font-weight: bold;
+    background-color: #0B0E14;
+}
+
+QMenu{
+    background-color: #151B26;
+}
+QMenuBar{
+    background-color: #151B26;
+}
+QGroupBox#grpBCOORDS{
+    border: transparent;
+}
+</file>
+
+</files>

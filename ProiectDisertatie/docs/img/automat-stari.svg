@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="580" viewBox="0 0 620 580" role="img" font-family="Segoe UI, Calibri, Arial, sans-serif">
+<title>Automatul de st&#259;ri al unei axe &#238;n firmware-ul ESP32</title>
+<desc>Fiecare ax&#259; parcurge independent secven&#539;a H_APPROACH, H_BACKOFF, H_DONE, bariera de referen&#539;iere, H_PARK, bariera de parcare, apoi trece &#238;n regimul opera&#539;ional T_MOVEMENT sau TEST_MODE, &#238;ntre care se poate comuta prin variabila g_mode.</desc>
+
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="620" height="580" fill="#FFFFFF"/>
+
+<!-- start -->
+<rect x="115" y="22" width="140" height="24" rx="12" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<text x="185" y="38" font-size="11.5" fill="#444441" text-anchor="middle">Alimentare</text>
+<line x1="185" y1="46" x2="185" y2="62" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+
+<!-- H_APPROACH -->
+<rect x="70" y="62" width="230" height="56" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="86" y="86" font-size="15" font-weight="500" fill="#3C3489">H_APPROACH</text>
+<text x="86" y="104" font-size="11.5" fill="#534AB7">Caut&#259; limitatorul, 400 pa&#537;i/s</text>
+<line x1="185" y1="118" x2="185" y2="162" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+<text x="320" y="134" font-size="11" fill="#444441">endstop atins &#8594; oprire, contor = 0</text>
+<text x="320" y="148" font-size="11" fill="#5F5E5A">limita negativ&#259; se fixeaz&#259; aici</text>
+
+<!-- H_BACKOFF -->
+<rect x="70" y="162" width="230" height="56" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="86" y="186" font-size="15" font-weight="500" fill="#3C3489">H_BACKOFF</text>
+<text x="86" y="204" font-size="11.5" fill="#534AB7">Se retrage la jum&#259;tate de vitez&#259;</text>
+<line x1="185" y1="218" x2="185" y2="262" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+<text x="320" y="234" font-size="11" fill="#444441">retras 160 pa&#537;i &#8594; ZERO REAL al axei</text>
+<text x="320" y="248" font-size="11" fill="#5F5E5A">homedCount++</text>
+
+<!-- H_DONE -->
+<rect x="70" y="262" width="230" height="56" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<text x="86" y="286" font-size="15" font-weight="500" fill="#444441">H_DONE</text>
+<text x="86" y="304" font-size="11.5" fill="#5F5E5A">Profil rapid, limit&#259; = cursa</text>
+<line x1="185" y1="318" x2="185" y2="362" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+<text x="320" y="334" font-size="11" fill="#444441">BARIER&#258;: toate cele 4 axe referen&#539;iate</text>
+<text x="320" y="348" font-size="11" fill="#5F5E5A">homedCount == 4</text>
+
+<!-- H_PARK -->
+<rect x="70" y="362" width="230" height="56" rx="6" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+<text x="86" y="386" font-size="15" font-weight="500" fill="#712B13">H_PARK</text>
+<text x="86" y="404" font-size="11.5" fill="#993C1D">Merge la 75&#176; / 30&#176;; nu re-zereaz&#259;</text>
+<line x1="185" y1="418" x2="185" y2="472" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+<text x="320" y="430" font-size="11" fill="#444441">oprit &#536;I &#238;n zona moart&#259; &#8594; parkedCount++</text>
+<text x="320" y="444" font-size="11" fill="#5F5E5A">BARIER&#258;: parkedCount == 4 &#8594; g_homed</text>
+
+<!-- regimuri operationale -->
+<rect x="70" y="472" width="230" height="56" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="86" y="496" font-size="15" font-weight="500" fill="#3C3489">T_MOVEMENT</text>
+<text x="86" y="514" font-size="11.5" fill="#534AB7">Vitez&#259; deg/s de la PC</text>
+
+<rect x="360" y="472" width="230" height="56" rx="6" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+<text x="376" y="496" font-size="15" font-weight="500" fill="#712B13">TEST_MODE</text>
+<text x="376" y="514" font-size="11.5" fill="#993C1D">Pozi&#539;ie &#238;n grade, manual</text>
+
+<line x1="300" y1="500" x2="360" y2="500" stroke="#888780" stroke-width="1" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="330" y="494" font-size="10" fill="#5F5E5A" text-anchor="middle">g_mode</text>
+
+<!-- legenda -->
+<rect x="70" y="548" width="12" height="12" rx="2" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="88" y="558" font-size="11" fill="#5F5E5A">regim vitez&#259;</text>
+<rect x="180" y="548" width="12" height="12" rx="2" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+<text x="198" y="558" font-size="11" fill="#5F5E5A">regim pozi&#539;ie</text>
+<rect x="295" y="548" width="12" height="12" rx="2" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<text x="313" y="558" font-size="11" fill="#5F5E5A">oprit / barier&#259;</text>
+</svg>

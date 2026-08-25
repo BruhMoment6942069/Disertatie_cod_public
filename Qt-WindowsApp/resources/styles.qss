@@ -1,0 +1,48 @@
+/* -----------Color Pallete ------------- */
+/*
+Deep Background	#0B0E14	The main window background (Deep space blue).
+Surface/Card	#151B26	Sidebars, cards, and container elements.
+Primary Accent	#3B82F6	Primary buttons, active states, and focus borders.
+Secondary Blue	#1E3A8A	Hover states and subtle highlights.
+Text (Primary)	#F8FAFC	Main headings and body text (Off-white blue).
+Text (Muted)	#94A3B8	Labels, placeholders, and disabled text.
+Glow/Success	#60A5FA	Neon highlights or success indicators.
+
+
+*/
+/**/
+
+
+QMainWindow{
+    background-color: #0B0E14;
+}
+QPushButton {
+    background-color: #3B82F6;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 12px;
+    font-weight: bold;
+}
+
+QPushButton:hover{
+    background-color: #151B26;
+}
+
+QLabel#notificationLabel{
+    color: white;
+    font-weight: bold;
+    background-color: #0B0E14;
+}
+
+QMenu{
+    background-color: #151B26;
+}
+QMenuBar{
+    background-color: #151B26;
+}
+QGroupBox#grpBCOORDS{
+    border: transparent;
+}
+
+
+

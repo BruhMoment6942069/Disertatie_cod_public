@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="570" viewBox="0 0 700 570" role="img" font-family="Segoe UI, Calibri, Arial, sans-serif">
+<title>Lan&#539;ul de prelucrare a imaginii, executat pentru fiecare cadru</title>
+<desc>Cinci etape succesive: achizi&#539;ia &#537;i normalizarea geometric&#259;, construc&#539;ia m&#259;&#537;tii cromatice, detec&#539;ia obiectului, urm&#259;rirea temporal&#259; &#537;i calculul erorii de ghidare normalizate.</desc>
+
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="700" height="570" fill="#FFFFFF"/>
+
+<!-- etapa 1 -->
+<rect x="40" y="40" width="300" height="64" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="56" y="62" font-size="14" font-weight="500" fill="#085041">1 &#183; Achizi&#539;ie &#537;i orientare</text>
+<text x="56" y="80" font-size="11" fill="#0F6E56">640&#215;480, DirectShow, circa 30 cadre/s</text>
+<text x="56" y="96" font-size="11" fill="#0F6E56">oglindire orizontal&#259; a cadrului brut</text>
+<text x="365" y="58" font-size="11" fill="#5F5E5A">Oglindirea precede orice m&#259;sur&#259;toare, astfel &#238;nc&#226;t</text>
+<text x="365" y="72" font-size="11" fill="#5F5E5A">masca, e&#537;antionarea manual&#259;, &#238;nregistrarea video &#537;i</text>
+<text x="365" y="86" font-size="11" fill="#5F5E5A">eroarea de ghidare s&#259; descrie aceea&#537;i orientare.</text>
+<line x1="190" y1="104" x2="190" y2="148" stroke="#888780" stroke-width="1.2" marker-end="url(#a)"/>
+
+<!-- etapa 2 -->
+<rect x="40" y="148" width="300" height="64" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="56" y="170" font-size="14" font-weight="500" fill="#085041">2 &#183; Construc&#539;ia m&#259;&#537;tii</text>
+<text x="56" y="188" font-size="11" fill="#0F6E56">filtrare 11&#215;11 &#238;n BGR &#8594; HSV &#8594; prag cromatic</text>
+<text x="56" y="204" font-size="11" fill="#0F6E56">deschidere 3 &#183; &#238;nchidere 9 &#183; dilatare 5</text>
+<text x="365" y="166" font-size="11" fill="#5F5E5A">Filtrarea precede pragul: decizia se ia pe fiecare</text>
+<text x="365" y="180" font-size="11" fill="#5F5E5A">pixel, iar zgomotul ar perfora masca. Se filtreaz&#259; &#238;n</text>
+<text x="365" y="194" font-size="11" fill="#5F5E5A">BGR, fiindc&#259; nuan&#539;a este o m&#259;rime circular&#259;.</text>
+<line x1="190" y1="212" x2="190" y2="256" stroke="#888780" stroke-width="1.2" marker-end="url(#a)"/>
+
+<!-- etapa 3 -->
+<rect x="40" y="256" width="300" height="64" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="56" y="278" font-size="14" font-weight="500" fill="#085041">3 &#183; Detec&#539;ia</text>
+<text x="56" y="296" font-size="11" fill="#0F6E56">contururi externe &#183; &#238;nf&#259;&#537;ur&#259;toare convex&#259;</text>
+<text x="56" y="312" font-size="11" fill="#0F6E56">filtru de arie &#537;i de factor de umplere</text>
+<text x="365" y="274" font-size="11" fill="#5F5E5A">&#206;nf&#259;&#537;ur&#259;toarea acoper&#259; cus&#259;turile albe, care nu trec</text>
+<text x="365" y="288" font-size="11" fill="#5F5E5A">de pragul cromatic. Centrul se ia din momentele de</text>
+<text x="365" y="302" font-size="11" fill="#5F5E5A">ordinul &#238;nt&#226;i, nu din cercul circumscris.</text>
+<line x1="190" y1="320" x2="190" y2="364" stroke="#888780" stroke-width="1.2" marker-end="url(#a)"/>
+
+<!-- etapa 4 -->
+<rect x="40" y="364" width="300" height="64" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="56" y="386" font-size="14" font-weight="500" fill="#085041">4 &#183; Urm&#259;rirea</text>
+<text x="56" y="404" font-size="11" fill="#0F6E56">automat C&#259;utare / Blocat &#183; fereastr&#259; de 3 raze</text>
+<text x="56" y="420" font-size="11" fill="#0F6E56">netezire exponen&#539;ial&#259; &#183; histerezis de 10 cadre</text>
+<text x="365" y="382" font-size="11" fill="#5F5E5A">Histerezisul men&#539;ine blocajul peste rat&#259;rile izolate,</text>
+<text x="365" y="396" font-size="11" fill="#5F5E5A">dar reemite eroarea anterioar&#259; neschimbat&#259; &#8212; caz</text>
+<text x="365" y="410" font-size="11" fill="#5F5E5A">detectat &#238;n aval &#537;i tratat ca absen&#539;&#259; de m&#259;sur&#259;toare.</text>
+<line x1="190" y1="428" x2="190" y2="472" stroke="#888780" stroke-width="1.2" marker-end="url(#a)"/>
+
+<!-- etapa 5 -->
+<rect x="40" y="472" width="300" height="64" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="56" y="494" font-size="14" font-weight="500" fill="#085041">5 &#183; Eroarea de ghidare</text>
+<text x="56" y="512" font-size="11" fill="#0F6E56">errX, errY normalizate &#238;n intervalul &#177;1</text>
+<text x="56" y="528" font-size="11" fill="#0F6E56">raportate la centrul exact al cadrului</text>
+<text x="365" y="490" font-size="11" fill="#5F5E5A">Normalizarea face eroarea independent&#259; de rezolu&#539;ie:</text>
+<text x="365" y="504" font-size="11" fill="#5F5E5A">&#238;n aval conteaz&#259; doar raportul dintre l&#259;&#539;imea cadrului</text>
+<text x="365" y="518" font-size="11" fill="#5F5E5A">&#537;i distan&#539;a focal&#259; exprimat&#259; &#238;n pixeli.</text>
+</svg>

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="400" viewBox="0 0 820 400" role="img" font-family="Segoe UI, Calibri, Arial, sans-serif">
+<title>Arhitectura pe fire de execu&#539;ie a aplica&#539;iei de control</title>
+<desc>Dou&#259; fire de viziune independente, c&#226;te unul pentru fiecare camer&#259;, comunic&#259; prin conexiuni &#238;n coad&#259; cu firul principal, care con&#539;ine interfa&#539;a grafic&#259;, controlerul &#537;i clientul de re&#539;ea.</desc>
+
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="820" height="400" fill="#FFFFFF"/>
+
+<!-- camere -->
+<rect x="25" y="95" width="110" height="48" rx="6" fill="#FFFFFF" stroke="#B4B2A9" stroke-width="1"/>
+<text x="39" y="118" font-size="13" font-weight="500" fill="#2C2C2A">Camera 0</text>
+<text x="39" y="132" font-size="10" fill="#5F5E5A">USB, 640&#215;480</text>
+
+<rect x="25" y="220" width="110" height="48" rx="6" fill="#FFFFFF" stroke="#B4B2A9" stroke-width="1"/>
+<text x="39" y="243" font-size="13" font-weight="500" fill="#2C2C2A">Camera 1</text>
+<text x="39" y="257" font-size="10" fill="#5F5E5A">USB, 640&#215;480</text>
+
+<!-- fire de viziune -->
+<rect x="155" y="60" width="205" height="100" rx="8" fill="none" stroke="#B4B2A9" stroke-width="1" stroke-dasharray="6 4"/>
+<text x="167" y="80" font-size="11" fill="#888780">Fir de viziune 0</text>
+<rect x="170" y="90" width="175" height="58" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="184" y="113" font-size="13" font-weight="500" fill="#085041">VisionWorker</text>
+<text x="184" y="128" font-size="10" fill="#0F6E56">camId = 0</text>
+
+<rect x="155" y="185" width="205" height="100" rx="8" fill="none" stroke="#B4B2A9" stroke-width="1" stroke-dasharray="6 4"/>
+<text x="167" y="205" font-size="11" fill="#888780">Fir de viziune 1</text>
+<rect x="170" y="215" width="175" height="58" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="184" y="238" font-size="13" font-weight="500" fill="#085041">VisionWorker</text>
+<text x="184" y="253" font-size="10" fill="#0F6E56">camId = 1</text>
+
+<!-- firul principal -->
+<rect x="400" y="32" width="235" height="298" rx="8" fill="none" stroke="#B4B2A9" stroke-width="1" stroke-dasharray="6 4"/>
+<text x="412" y="52" font-size="11" fill="#888780">Firul principal (interfa&#539;&#259; grafic&#259;)</text>
+
+<rect x="415" y="64" width="205" height="64" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="431" y="90" font-size="13" font-weight="500" fill="#3C3489">MainWindow</text>
+<text x="431" y="106" font-size="10" fill="#534AB7">prezentare, semnale de intrare</text>
+
+<rect x="415" y="152" width="205" height="64" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="431" y="178" font-size="13" font-weight="500" fill="#3C3489">MainController</text>
+<text x="431" y="194" font-size="10" fill="#534AB7">reglare, validare, configurare</text>
+
+<rect x="415" y="246" width="205" height="64" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="431" y="272" font-size="13" font-weight="500" fill="#3C3489">UdpClient</text>
+<text x="431" y="288" font-size="10" fill="#534AB7">descoperire, &#238;mpachetare</text>
+
+<!-- ESP32 -->
+<rect x="675" y="246" width="120" height="64" rx="6" fill="#FFFFFF" stroke="#B4B2A9" stroke-width="1"/>
+<text x="689" y="272" font-size="13" font-weight="500" fill="#2C2C2A">ESP32</text>
+<text x="689" y="288" font-size="10" fill="#5F5E5A">4 axe</text>
+
+<!-- leg&#259;turi -->
+<line x1="135" y1="119" x2="170" y2="119" stroke="#888780" stroke-width="1.2" marker-end="url(#a)"/>
+<line x1="135" y1="244" x2="170" y2="244" stroke="#888780" stroke-width="1.2" marker-end="url(#a)"/>
+
+<path d="M345 119 H380 V168 H415" fill="none" stroke="#888780" stroke-width="1.2" stroke-dasharray="5 3" marker-start="url(#a)" marker-end="url(#a)"/>
+<path d="M345 244 H380 V200 H415" fill="none" stroke="#888780" stroke-width="1.2" stroke-dasharray="5 3" marker-start="url(#a)" marker-end="url(#a)"/>
+
+<line x1="517" y1="152" x2="517" y2="128" stroke="#888780" stroke-width="1.2" marker-start="url(#a)" marker-end="url(#a)"/>
+<line x1="517" y1="216" x2="517" y2="246" stroke="#888780" stroke-width="1.2" marker-start="url(#a)" marker-end="url(#a)"/>
+
+<line x1="620" y1="278" x2="675" y2="278" stroke="#888780" stroke-width="1.2" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="647" y="268" font-size="10" fill="#5F5E5A" text-anchor="middle">UDP 1234</text>
+
+<!-- legend&#259; -->
+<line x1="40" y1="361" x2="68" y2="361" stroke="#888780" stroke-width="1.2"/>
+<text x="76" y="365" font-size="11" fill="#5F5E5A">conexiune direct&#259; (acela&#537;i fir)</text>
+<line x1="290" y1="361" x2="318" y2="361" stroke="#888780" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text x="326" y="365" font-size="11" fill="#5F5E5A">conexiune &#238;n coad&#259; (traverseaz&#259; firele)</text>
+</svg>

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="510" viewBox="0 0 860 510" role="img" font-family="Segoe UI, Calibri, Arial, sans-serif">
+<title>Arhitectura de execu&#539;ie pe dou&#259; nuclee a firmware-ului ESP32</title>
+<desc>Sta&#539;ia de control PC comunic&#259; prin UDP cu sarcina de re&#539;ea de pe nucleul 0. Sarcina de pa&#537;i ruleaz&#259; izolat pe nucleul 1 &#537;i comand&#259; driverele de motor, citind limitatoarele. Cele dou&#259; sarcini schimb&#259; date printr-o zon&#259; de stare partajat&#259; f&#259;r&#259; mutex.</desc>
+
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="860" height="510" fill="#FFFFFF"/>
+
+<!-- containerul ESP32 -->
+<rect x="215" y="40" width="430" height="405" rx="10" fill="none" stroke="#B4B2A9" stroke-width="1" stroke-dasharray="6 4"/>
+<text x="231" y="66" font-size="12" fill="#888780">ESP32 &#183; dou&#259; nuclee, FreeRTOS</text>
+
+<!-- nucleul 0 -->
+<rect x="230" y="85" width="186" height="180" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+<text x="246" y="111" font-size="15" font-weight="500" fill="#085041">Nucleul 0</text>
+<text x="246" y="129" font-size="12" fill="#0F6E56">netTask &#183; prioritate 2</text>
+<line x1="246" y1="141" x2="400" y2="141" stroke="#0F6E56" stroke-width="0.5" opacity="0.35"/>
+<text x="246" y="161" font-size="11.5" fill="#0F6E56">&#183; stiv&#259; 8192 octe&#539;i</text>
+<text x="246" y="181" font-size="11.5" fill="#0F6E56">&#183; conectare WiFi + rezerv&#259;</text>
+<text x="246" y="201" font-size="11.5" fill="#0F6E56">&#183; recep&#539;ie comenzi UDP</text>
+<text x="246" y="221" font-size="11.5" fill="#0F6E56">&#183; telemetrie 50 Hz</text>
+<text x="246" y="241" font-size="11.5" fill="#0F6E56">&#183; cedeaz&#259; CPU periodic</text>
+
+<!-- nucleul 1 -->
+<rect x="440" y="85" width="186" height="180" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+<text x="456" y="111" font-size="15" font-weight="500" fill="#3C3489">Nucleul 1</text>
+<text x="456" y="129" font-size="12" fill="#534AB7">stepperTask &#183; prioritate 2</text>
+<line x1="456" y1="141" x2="610" y2="141" stroke="#534AB7" stroke-width="0.5" opacity="0.35"/>
+<text x="456" y="161" font-size="11.5" fill="#534AB7">&#183; stiv&#259; 4096 octe&#539;i</text>
+<text x="456" y="181" font-size="11.5" fill="#534AB7">&#183; automate de st&#259;ri &#215;4</text>
+<text x="456" y="201" font-size="11.5" fill="#534AB7">&#183; impulsuri de pas</text>
+<text x="456" y="221" font-size="11.5" fill="#534AB7">&#183; diagnostic serial</text>
+<text x="456" y="241" font-size="11.5" fill="#534AB7">&#183; NU cedeaz&#259; CPU</text>
+
+<!-- stare partajata -->
+<rect x="230" y="295" width="396" height="130" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<text x="246" y="321" font-size="15" font-weight="500" fill="#444441">Stare partajat&#259; &#8212; f&#259;r&#259; mutex</text>
+<text x="246" y="339" font-size="11.5" fill="#5F5E5A">cuvinte de 32 de bi&#539;i aliniate &#8594; acces atomic prin construc&#539;ie</text>
+<line x1="246" y1="351" x2="610" y2="351" stroke="#5F5E5A" stroke-width="0.5" opacity="0.35"/>
+<text x="246" y="373" font-size="11.5" fill="#444441">Nucleul 0 scrie: g_speed, g_target, g_mode, g_lastSpeedMs</text>
+<text x="246" y="393" font-size="11.5" fill="#444441">Nucleul 1 scrie: g_homed</text>
+<text x="246" y="413" font-size="11.5" fill="#5F5E5A">un singur scriitor pentru fiecare variabil&#259;</text>
+
+<!-- PC -->
+<rect x="20" y="120" width="150" height="100" rx="6" fill="#FFFFFF" stroke="#B4B2A9" stroke-width="1"/>
+<text x="36" y="146" font-size="15" font-weight="500" fill="#2C2C2A">Sta&#539;ie control</text>
+<text x="36" y="166" font-size="11.5" fill="#5F5E5A">Qt 6 + OpenCV</text>
+<text x="36" y="184" font-size="11.5" fill="#5F5E5A">detec&#539;ie &#537;i geometrie</text>
+<text x="36" y="202" font-size="11.5" fill="#5F5E5A">bucla de reglare</text>
+
+<!-- motoare -->
+<rect x="695" y="120" width="140" height="100" rx="6" fill="#FFFFFF" stroke="#B4B2A9" stroke-width="1"/>
+<text x="711" y="146" font-size="15" font-weight="500" fill="#2C2C2A">4 drivere</text>
+<text x="711" y="166" font-size="11.5" fill="#5F5E5A">motoare pas cu pas</text>
+<text x="711" y="184" font-size="11.5" fill="#5F5E5A">microp&#259;&#537;ire 1/16</text>
+<text x="711" y="202" font-size="11.5" fill="#5F5E5A">3200 pa&#537;i / rota&#539;ie</text>
+
+<!-- limitatoare -->
+<rect x="695" y="295" width="140" height="85" rx="6" fill="#FFFFFF" stroke="#B4B2A9" stroke-width="1"/>
+<text x="711" y="321" font-size="15" font-weight="500" fill="#2C2C2A">4 limitatoare</text>
+<text x="711" y="341" font-size="11.5" fill="#5F5E5A">normal &#238;nchise</text>
+<text x="711" y="359" font-size="11.5" fill="#5F5E5A">INPUT_PULLUP</text>
+
+<!-- legaturi -->
+<line x1="170" y1="172" x2="230" y2="172" stroke="#888780" stroke-width="1" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="200" y="160" font-size="10" fill="#5F5E5A" text-anchor="middle">UDP 1234</text>
+
+<line x1="626" y1="172" x2="695" y2="172" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+<text x="660" y="160" font-size="10" fill="#5F5E5A" text-anchor="middle">STEP / DIR</text>
+
+<path d="M695 337 H660 V240 H626" fill="none" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+
+<line x1="323" y1="265" x2="323" y2="295" stroke="#888780" stroke-width="1" marker-start="url(#a)" marker-end="url(#a)"/>
+<line x1="533" y1="265" x2="533" y2="295" stroke="#888780" stroke-width="1" marker-start="url(#a)" marker-end="url(#a)"/>
+
+<!-- nota -->
+<text x="20" y="485" font-size="11.5" fill="#5F5E5A">Nucleul 1 nu cedeaz&#259; niciodat&#259; procesorul &#8212; de aceea stiva WiFi, impredictibil&#259; ca durat&#259;, are nucleul 0 &#238;n exclusivitate.</text>
+</svg>

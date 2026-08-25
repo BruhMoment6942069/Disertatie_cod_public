@@ -1,0 +1,16 @@
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# Real WiFi credentials. Copy secrets.example.h to secrets.h and fill it in.
+ProiectDisertatie/include/secrets.h
+
+# ── Build output ──────────────────────────────────────────────────────────────
+.pio/
+cmake-build-*/
+build/
+
+# ── Recorded clips (large, regenerable) ───────────────────────────────────────
+clips/
+Qt-WindowsApp/clips/
+
+# ── IDE state ─────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
